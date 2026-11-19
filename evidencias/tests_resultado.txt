@@ -1,0 +1,13 @@
+./gradlew testDebugUnitTest  ->  BUILD SUCCESSFUL
+
+ar.jornadas.ui.ControlDescargasTest: 3 tests, 0 fallas, 0 errores
+  OK  dosToquesDuranteUnaPeticionGeneranUnSoloIntento
+  OK  trasExitoOFallaSePuedeVolverAPedir
+  OK  cargaAutomaticaSeReclamaUnaSolaVez
+ar.jornadas.ui.VistaProgramaTest: 6 tests, 0 fallas, 0 errores
+  OK  edicionVaciaSigueValidaAlReabrirSinSenal
+  OK  sinFiltrosDevuelveTodo
+  OK  fallaSinDescargaPreviaOfreceReintento
+  OK  fallaConEdicionPreviaConservaListaYAvisa
+  OK  filtrarDia2YDatosDejaDosResultados
+  OK  edicionVaciaExitosaMuestraSinCharlas
