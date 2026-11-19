@@ -23,8 +23,16 @@ class ProgramaModel(app: Application, private val estado: SavedStateHandle) : An
         .stateIn(viewModelScope, SharingStarted.Eagerly, VistaPrograma())
     val cargando = MutableStateFlow(false)
 
+    private val descargas = ControlDescargas(viewModelScope)
+
+    /** Carga automática: una sola por proceso, sin importar rotaciones ni pestañas. */
+    fun cargaInicial() {
+        if (cargaDeSesion.reclamar()) recargar()
+    }
+
+    /** Actualización explícita: si ya hay una petición en curso, el toque se ignora. */
     fun recargar() {
-        viewModelScope.launch {
+        descargas.pedir {
             cargando.value = true
             try {
                 repo.sincronizar()
@@ -38,4 +46,9 @@ class ProgramaModel(app: Application, private val estado: SavedStateHandle) : An
     }
 
     fun marcar(id: String) { viewModelScope.launch { repo.cambiarFavorita(id) } }
+
+    companion object {
+        // El companion vive lo mismo que el proceso: al matarlo, vuelve a haber una carga automática.
+        private val cargaDeSesion = UnaVez()
+    }
 }
