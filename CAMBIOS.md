@@ -1,4 +1,8 @@
-# CAMBIOS · Jornadas del Sur
+# Entrega de cambios · Parcial 2
+
+**Alumno:** Julian Ramiro Carranza  
+**Libreta universitaria:** 1132516  
+**Proyecto:** Jornadas del Sur
 
 Corrección de mantenimiento sobre el proyecto base. Se conservan Retrofit + `ServicioLocal` (interceptor de OkHttp), Room/SQLite, la pantalla Mesa y `legacy/AgendaImpresa`. No se cambiaron versiones de Gradle (8.7), del plugin de Android (8.5.2) ni de Kotlin (1.9.24).
 
