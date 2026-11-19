@@ -13,17 +13,19 @@ class ProgramaModel(app: Application) : AndroidViewModel(app) {
     private val repo = servicios.agenda
     val charlas = repo.programa.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val dia = MutableStateFlow(0)
-    val aviso = MutableStateFlow("")
+    private val fallo = MutableStateFlow(false)
+    val vista = combine(repo.hayEdicion, charlas, fallo, ::armarVista)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, VistaPrograma())
     val cargando = MutableStateFlow(false)
 
     fun recargar() {
         viewModelScope.launch {
             cargando.value = true
-            aviso.value = ""
             try {
                 repo.sincronizar()
+                fallo.value = false
             } catch (e: IOException) {
-                aviso.value = "No se pudo consultar el programa"
+                fallo.value = true
             } finally {
                 cargando.value = false
             }
