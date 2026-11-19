@@ -30,8 +30,15 @@ abstract class CarteleraDao {
     @Query("SELECT EXISTS(SELECT 1 FROM edicion)")
     abstract fun hayEdicion(): Flow<Boolean>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun guardar(fichas: List<Charla>)
+    /** Solo agrega charlas nuevas (sin marcar); las existentes no se pisan. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun insertarNuevas(fichas: List<Charla>)
+
+    /** Actualiza el contenido por id estable sin tocar la columna favorita. */
+    @Query("UPDATE charlas SET titulo = :titulo, tema = :tema, dia = :dia, hora = :hora, " +
+        "sala = :sala, ponente = :ponente, resumen = :resumen WHERE id = :id")
+    abstract suspend fun actualizarContenido(id: String, titulo: String, tema: String, dia: Int,
+        hora: String, sala: String, ponente: String, resumen: String)
 
     @Query("DELETE FROM charlas WHERE id NOT IN (:vigentes)")
     abstract suspend fun retirarAusentes(vigentes: List<String>)
@@ -42,8 +49,12 @@ abstract class CarteleraDao {
     /** La organización publica instantáneas completas: lo que no viene, ya no está en el programa. */
     @Transaction
     open suspend fun reemplazarEdicion(fichas: List<Charla>, momento: Long) {
+        // Se retiran las ausentes: si una charla vuelve más adelante, vuelve sin marcar.
         retirarAusentes(fichas.map { it.id })
-        guardar(fichas)
+        // La favorita se lee de la fila en el momento de escribir, así que una marca hecha
+        // durante la petición se respeta.
+        fichas.forEach { actualizarContenido(it.id, it.titulo, it.tema, it.dia, it.hora, it.sala, it.ponente, it.resumen) }
+        insertarNuevas(fichas)
         registrar(Edicion(descargada = momento))
     }
 
