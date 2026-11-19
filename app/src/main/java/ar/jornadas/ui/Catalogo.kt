@@ -15,19 +15,18 @@ import ar.jornadas.data.Charla
 fun Catalogo(model: ProgramaModel, abrir: (String) -> Unit) {
     LaunchedEffect(Unit) { model.recargar() }
     val dia by model.dia.collectAsStateWithLifecycle()
-    var tema by remember { mutableStateOf("Todos") }
+    val tema by model.tema.collectAsStateWithLifecycle()
     val vista by model.vista.collectAsStateWithLifecycle()
     val cargando by model.cargando.collectAsStateWithLifecycle()
-    Selector(listOf("Ambos días", "Día 1", "Día 2"), dia) { model.dia.value = it }
-    val temas = listOf("Todos", "Android", "Datos", "Calidad")
-    Selector(temas, temas.indexOf(tema)) { tema = temas[it] }
+    Selector(listOf("Ambos días", "Día 1", "Día 2"), dia, model::elegirDia)
+    Selector(TEMAS, TEMAS.indexOf(tema)) { model.elegirTema(TEMAS[it]) }
     TextButton(onClick = model::recargar) { Text("Actualizar") }
     if (cargando) LinearProgressIndicator(Modifier.fillMaxWidth())
     vista.aviso?.let { Text(it, color = MaterialTheme.colorScheme.secondary) }
     when {
         vista.ofrecerReintento -> OutlinedButton(onClick = model::recargar) { Text("Reintentar") }
         vista.sinCharlas -> Text("Sin charlas programadas")
-        else -> Grilla(vista.charlas.filter { (dia == 0 || it.dia == dia) && (tema == "Todos" || it.tema == tema) }, abrir)
+        else -> Grilla(filtrar(vista.charlas, dia, tema), abrir)
     }
 }
 

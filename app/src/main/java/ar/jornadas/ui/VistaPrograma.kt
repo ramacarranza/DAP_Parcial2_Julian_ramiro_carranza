@@ -18,3 +18,10 @@ fun armarVista(hayEdicion: Boolean, charlas: List<Charla>, fallo: Boolean): Vist
     fallo -> VistaPrograma(aviso = AVISO_SIN_DESCARGA, ofrecerReintento = true)
     else -> VistaPrograma() // primera descarga en curso
 }
+
+const val TODOS = "Todos"
+val TEMAS = listOf(TODOS, "Android", "Datos", "Calidad")
+
+/** dia = 0 significa ambos días. */
+fun filtrar(charlas: List<Charla>, dia: Int, tema: String): List<Charla> =
+    charlas.filter { (dia == 0 || it.dia == dia) && (tema == TODOS || it.tema == tema) }

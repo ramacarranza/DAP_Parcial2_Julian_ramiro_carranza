@@ -7,12 +7,17 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-class ProgramaModel(app: Application) : AndroidViewModel(app) {
+class ProgramaModel(app: Application, private val estado: SavedStateHandle) : AndroidViewModel(app) {
     private val servicios = Servicios(app)
     val mesa = servicios.mesa
     private val repo = servicios.agenda
     val charlas = repo.programa.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-    val dia = MutableStateFlow(0)
+    // Los filtros viven en el estado guardado: sobreviven a rotación, a abrir una ficha y a la
+    // muerte del proceso; una tarea nueva no tiene estado guardado y arranca sin filtros.
+    val dia = estado.getStateFlow("dia", 0)
+    val tema = estado.getStateFlow("tema", TODOS)
+    fun elegirDia(indice: Int) { estado["dia"] = indice }
+    fun elegirTema(nombre: String) { estado["tema"] = nombre }
     private val fallo = MutableStateFlow(false)
     val vista = combine(repo.hayEdicion, charlas, fallo, ::armarVista)
         .stateIn(viewModelScope, SharingStarted.Eagerly, VistaPrograma())
